@@ -1,4 +1,4 @@
 [submodule "nets/MutCompute1.0"]
 	path = nets/mutcompute
-	url = https://github.com/danny305/MutCompute1.0
+	url = git@github.com:danny305/mutcompute_2020.git
 	branch = refactor/MLaaS

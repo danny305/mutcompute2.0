@@ -1,0 +1,68 @@
+version: "3"
+
+services:
+
+  smtp4dev:
+    image: rnwood/smtp4dev:v3
+    restart: always
+    ports:
+      - '5001:80'
+      - '25:25'
+      - '143:143'
+    volumes:
+        - smtp4dev-data:/smtp4dev
+    environment:
+      - ServerOptions__HostName=smtp4dev
+      - ServerOptions__TlsMode=StartTls
+
+  # Backend
+  backend:
+    environment:
+      SES_EMAIL_HOST: smtp4dev
+      SES_EMAIL_PORT: 25
+      SES_SMTP_USERNAME: someuser
+      SES_SMTP_PASSWORD: somepassword
+      DB_URI: /app/data/test_db.db
+      HOSTNAME: something
+      PORT: someport
+    depends_on:
+      - nn_api
+      - smtp4dev
+
+
+  nn_api:
+    ports:
+      - 8000:8000
+    volumes:
+      - ./test/resources/data:/mutcompute_2020/data
+    environment:
+      PYTHONUNBUFFERED: 1
+      PYTHONPATH: /mutcompute_2020/api:/mutcompute_2020/mutcompute:/mutcompute_2020
+      DB_URI: /mutcompute_2020/data/test_db.db
+      DB_NN_TABLE: NN_Query
+
+
+  # #Queue/Worker Processes
+  celery:
+    container_name: celery
+    build:
+      context: ./nets
+      dockerfile: Dockerfile
+    image: mutcompute:api
+    volumes: 
+      - ./test/resources/data:/mutcompute_2020/data
+    environment:
+      PYTHONUNBUFFERED: 1
+      PYTHONPATH: /mutcompute_2020/api:/mutcompute_2020/mutcompute:/mutcompute_2020
+      SES_EMAIL_HOST: smtp4dev
+      SES_EMAIL_PORT: 25
+      SES_SMTP_USERNAME: someuser
+      SES_SMTP_PASSWORD: somepassword
+      DB_URI: /mutcompute_2020/data/test_db.db
+      DB_NN_TABLE: NN_Query
+    depends_on:
+      - redis
+      - smtp4dev
+
+volumes:
+  smtp4dev-data:

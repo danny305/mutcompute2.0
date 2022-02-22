@@ -34,7 +34,7 @@ class InferenceAPI(Resource):
 
         print("Email:", email)
         print("PDB code:", pdb_code)
-        print("Load cached protein: ", False)
+        print("Load cached protein: ", load_cache)
 
         if "@" in email and len(pdb_code) == 4:
             try:

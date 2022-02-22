@@ -48,11 +48,12 @@ services:
       dockerfile: Dockerfile
     image: mutcompute:api
     volumes: 
-      - ./nets:/mutcompute_2020
+      - ./nets/api:/mutcompute_2020/api
       - ./data:/mutcompute_2020/data
+      - ./nets/data:/mutcompute_2020/mutcompute/data
     environment:
       PYTHONUNBUFFERED: 1
-      PYTHONPATH: /mutcompute_2020:/mutcompute_2020/mutcompute
+      PYTHONPATH: /mutcompute_2020/api:/mutcompute_2020/mutcompute:/mutcompute_2020
       DB_URI: ${DB_URI_NN_API}
       DB_NN_TABLE: ${DB_NN_TABLE}
     depends_on:
@@ -72,11 +73,12 @@ services:
       dockerfile: Dockerfile
     image: mutcompute:api
     volumes: 
-      - ./nets:/mutcompute_2020
+      - ./nets/api:/mutcompute_2020/api
       - ./data:/mutcompute_2020/data
+      - ./nets/data:/mutcompute_2020/mutcompute/data
     environment:
       PYTHONUNBUFFERED: 1
-      PYTHONPATH: /mutcompute_2020:/mutcompute_2020/mutcompute
+      PYTHONPATH: /mutcompute_2020/api:/mutcompute_2020/mutcompute:/mutcompute_2020
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/0
       SES_EMAIL_HOST: ${SES_EMAIL_HOST}
@@ -89,7 +91,6 @@ services:
       PORT: ${PORT}
     working_dir: /mutcompute_2020/api
     entrypoint: celery -A task.celery worker -l debug --concurrency 2 
-    # entrypoint: celery -A task.celery worker --loglevel=DEBUG --concurrency 2 -P solo
     depends_on:
       - redis 
 
@@ -124,16 +125,3 @@ services:
       - ./nginx/certbot/conf:/etc/letsencrypt
       - ./nginx/certbot/www:/var/www/certbot
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-
-
-  # flower:
-  #     container_name: FLOWER
-  #     image: mher/flower
-  #     command: flower --broker=redis://redis:6379/0 --port=8888
-  #     ports:
-  #       - 9181:8888
-  #     depends_on: 
-  #       - celery
-  
-
-      
