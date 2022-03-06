@@ -27,4 +27,4 @@ CREATE INDEX "ix_NN_Query_query_time" ON "NN_Query" (query_time);
 
 CREATE UNIQUE INDEX "ix_Users_email" ON "Users" (email);
 
-INSERT INTO "main"."Users" ("id", "first_name", "last_name", "email", "password", "organization", "registered_on", "confirmation_link_sent_on", "email_confirmed", "email_confirmed_on") VALUES ('1', 'James', 'Loy', 'jamesmadiganloy@gmail.com', '$2b$12$M2Xq663pFpUSehM46/2GBek3iHL4XdPFNMgNAJQubC.NZ3K3PP3rW', 'Me', '2022-02-21 00:08:22.852200', '', '1', '2022-02-21 00:09:04.424646');
+INSERT INTO "main"."Users" ("id", "first_name", "last_name", "email", "password", "organization", "registered_on", "confirmation_link_sent_on", "email_confirmed", "email_confirmed_on") VALUES ('1', 'James', 'Loy', 'jamesmadiganloy@gmail.com', '$2b$12$M2Xq663pFpUSehM46/2GBek3iHL4XdPFNMgNAJQubC.NZ3K3PP3rW', 'Me', '2022-02-21 00:08:22.852200', NULL, '1', '2022-02-21 00:09:04.424646');

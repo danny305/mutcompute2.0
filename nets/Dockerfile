@@ -20,8 +20,11 @@ RUN pip install -r dependencies/requirements.txt && \
 
 WORKDIR /mutcompute_2020/mutcompute/dependencies/freesasa-2.0.3
 RUN autoreconf -i && ./configure --disable-xml --disable-json && make && make install
-WORKDIR /mutcompute_2020/mutcompute
 
-ENV PYTHONPATH /mutcompute_2020/mutcompute
+ENV PYTHONPATH /mutcompute_2020/api:/mutcompute_2020/mutcompute:/mutcompute_2020
+
+COPY api /mutcompute_2020/api
+
+WORKDIR /mutcompute_2020/api
 
 ENTRYPOINT ["bash"]

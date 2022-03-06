@@ -25,7 +25,6 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./backend/:/app/
       - ./data:/app/data
     environment:
       SES_EMAIL_HOST: ${SES_EMAIL_HOST}
@@ -38,7 +37,6 @@ services:
     depends_on:
       - nn_api
     command: gunicorn -b 0.0.0.0:5000 api:app
-    # entrypoint: python /app/api.py
 
 
   nn_api:
@@ -48,12 +46,10 @@ services:
       dockerfile: Dockerfile
     image: mutcompute:api
     volumes: 
-      - ./nets/api:/mutcompute_2020/api
       - ./data:/mutcompute_2020/data
       - ./nets/data:/mutcompute_2020/mutcompute/data
     environment:
       PYTHONUNBUFFERED: 1
-      PYTHONPATH: /mutcompute_2020/api:/mutcompute_2020/mutcompute:/mutcompute_2020
       DB_URI: ${DB_URI_NN_API}
       DB_NN_TABLE: ${DB_NN_TABLE}
     depends_on:
@@ -61,7 +57,6 @@ services:
       - celery
     ports:
       - 8000
-    working_dir: /mutcompute_2020/api
     entrypoint: python api.py
 
 
@@ -73,12 +68,10 @@ services:
       dockerfile: Dockerfile
     image: mutcompute:api
     volumes: 
-      - ./nets/api:/mutcompute_2020/api
       - ./data:/mutcompute_2020/data
       - ./nets/data:/mutcompute_2020/mutcompute/data
     environment:
       PYTHONUNBUFFERED: 1
-      PYTHONPATH: /mutcompute_2020/api:/mutcompute_2020/mutcompute:/mutcompute_2020
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/0
       SES_EMAIL_HOST: ${SES_EMAIL_HOST}
@@ -89,7 +82,6 @@ services:
       DB_NN_TABLE: ${DB_NN_TABLE}
       HOSTNAME: ${HOSTNAME}
       PORT: ${PORT}
-    working_dir: /mutcompute_2020/api
     entrypoint: celery -A task.celery worker -l debug --concurrency 2 
     depends_on:
       - redis 

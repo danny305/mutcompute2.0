@@ -25,6 +25,8 @@ services:
       DB_URI: /app/data/test_db.db
       HOSTNAME: something
       PORT: someport
+    volumes:
+      - ./test/resources/data:/app/data
     depends_on:
       - nn_api
       - smtp4dev
@@ -37,7 +39,6 @@ services:
       - ./test/resources/data:/mutcompute_2020/data
     environment:
       PYTHONUNBUFFERED: 1
-      PYTHONPATH: /mutcompute_2020/api:/mutcompute_2020/mutcompute:/mutcompute_2020
       DB_URI: /mutcompute_2020/data/test_db.db
       DB_NN_TABLE: NN_Query
 
@@ -53,7 +54,6 @@ services:
       - ./test/resources/data:/mutcompute_2020/data
     environment:
       PYTHONUNBUFFERED: 1
-      PYTHONPATH: /mutcompute_2020/api:/mutcompute_2020/mutcompute:/mutcompute_2020
       SES_EMAIL_HOST: smtp4dev
       SES_EMAIL_PORT: 25
       SES_SMTP_USERNAME: someuser

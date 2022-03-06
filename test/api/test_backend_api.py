@@ -66,7 +66,7 @@ def test_predict_backend(auth_token):
 
     response = requests.request("POST", url, headers=headers, data=payload)
     assert response.status_code == 201
-    con = sqlite3.connect("resources/data/test_db.db")
+    con = sqlite3.connect("test/resources/data/test_db.db")
 
     t_start = time.time()
     t_elapsed = 0.0
