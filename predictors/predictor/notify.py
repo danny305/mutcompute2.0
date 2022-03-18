@@ -9,6 +9,15 @@ import settings
 from settings import logger
 
 
+def get_server(host, port, username, password):
+    server = smtplib.SMTP(host, port)
+    server.connect(host, port)
+    server.starttls()
+    server.login(username, password)
+
+    logger.info("Connected to SMTP server")
+    return server
+
 
 def inference_email(user_email, pdb_id, df):
     """This is an aws ses function."""
@@ -54,14 +63,14 @@ def inference_email(user_email, pdb_id, df):
         msg.attach(attachment)
         logger.info("csv attached to email")
 
-    server = smtplib.SMTP(settings.ses_email_host, settings.ses_email_port)
-    server.connect(settings.ses_email_host, settings.ses_email_port)
-    server.starttls()
-    server.login(settings.ses_smtp_username, settings.ses_smtp_password)
-
-    logger.info("Connected to SMTP server")
-
     try:
+        server = get_server(
+            settings.ses_email_host,
+            settings.ses_email_port,
+            settings.ses_smtp_username,
+            settings.ses_smtp_password
+        )
+
         server.sendmail(
             from_name, [user_email, "danny.diaz@utexas.edu"], msg.as_string()
         )
@@ -127,12 +136,13 @@ def inference_fail_email(user_email, pdb_id, problem='nn'):
     mime_html = MIMEText(message, 'html')
     msg.attach(mime_html)
 
-    server = smtplib.SMTP(settings.ses_email_host, settings.ses_email_port)
-    server.connect(settings.ses_email_host, settings.ses_email_port)
-    server.starttls()
-    server.login(settings.ses_smtp_username, settings.ses_smtp_password)
-
     try:
+        server = get_server(
+            settings.ses_email_host,
+            settings.ses_email_port,
+            settings.ses_smtp_username,
+            settings.ses_smtp_password
+        )
         if problem=='nn':
             for recipient in recipients:
                 msg['To'] = recipient

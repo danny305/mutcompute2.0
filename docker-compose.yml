@@ -56,9 +56,6 @@ services:
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       AWS_REGION: ${AWS_REGION}
       JOB_QUEUE_URL: ${JOB_QUEUE_URL}
-    depends_on:
-      - redis 
-      - celery
     ports:
       - 8000
     entrypoint: python api.py

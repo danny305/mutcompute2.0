@@ -95,7 +95,7 @@ def listen(sqs_client, queue_url, predictor):
 
     while not gk.kill_now:
         response = sqs_client.receive_message(QueueUrl=queue_url, MaxNumberOfMessages=1)
-        logger.info("Got response %s", response)
+        logger.debug("Got response %s", response)
 
         if "Messages" in response:
 

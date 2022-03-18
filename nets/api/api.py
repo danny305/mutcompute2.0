@@ -42,46 +42,26 @@ class InferenceAPI(Resource):
         print("Load cached protein: ", load_cache)
 
         if "@" in email and len(pdb_code) == 4:
-            try:
-                if load_cache:
-                    pdb_file = Path('/mutcompute_2020/mutcompute/data/pdb_files') / f'{pdb_code}.pdb'
+            sqs = boto3.client("sqs", region_name=os.getenv("AWS_REGION"))
 
-                else:
-                    pdb_file = fetch_pdb_file(pdb_code, dir='/mutcompute_2020/mutcompute/data/pdb_files')
+            command = {"pdb_code": pdb_code, "user_email": email}
 
-                    print(f'Created PDB file: ', pdb_file)
-                    
-            except Exception:
-                return make_response(
-                    jsonify(
-                        Result=f'Unabled to retrieve PDB file for {pdb_code.upper()} from the PDB-REDO or the RCSB servers'
-                    ), 
-                    400
-                )
+            sqs.send_message(
+                QueueUrl=os.getenv("JOB_QUEUE_URL"),
+                MessageBody=dumps(command),
+                MessageGroupId="PredictCommand",
+                MessageDeduplicationId=str(uuid4())
+            )
 
-            else:
-                # run_mutcompute.delay(email, pdb_file.name, fs_pdb=True, load_cache=load_cache,
-                #     dir='/mutcompute_2020/mutcompute/data/pdb_files', out_dir='/mutcompute_2020/mutcompute/data/inference_CSVs', )
+            return make_response(
+                jsonify(Result=f"""
+                    Neural Net is running PDB file: {pdb_code.upper()}. 
+                    Expect an email with predictions within a few minutes or up to an hour. 
+                    Larger proteins tend to take longer.
+                """), 
+                201
+            ) 
 
-                sqs = boto3.client("sqs", region_name=os.getenv("AWS_REGION"))
-
-                command = {"pdb_code": pdb_code, "user_email": email}
-
-                sqs.send_message(
-                    QueueUrl=os.getenv("JOB_QUEUE_URL"),
-                    MessageBody=dumps(command),
-                    MessageGroupId="PredictCommand",
-                    MessageDeduplicationId=str(uuid4())
-                )
-
-                return make_response(
-                    jsonify(Result=f"""
-                        Neural Net is running PDB file: {pdb_code.upper()}. 
-                        Expect an email with predictions within a few minutes or up to an hour. 
-                        Larger proteins tend to take longer.
-                    """), 
-                    201
-                ) 
         else:
             return make_response(
                     jsonify(Result=f'Error in parsing arguments: {pdb_code.upper()} {email}'), 

@@ -27,7 +27,7 @@ pipeline = os.getenv("PIPELINE_FILE")
 
 hostname = os.getenv("HOSTNAME", "mutcompute.com")
 ses_email_host = os.getenv("SES_EMAIL_HOST")
-ses_email_port = os.getenv("SES_EMAIL_PORT")
+ses_email_port = int(os.getenv("SES_EMAIL_PORT"))
 ses_smtp_username = os.getenv("SES_SMTP_USERNAME")
 ses_smtp_password = os.getenv("SES_SMTP_PASSWORD")
 
