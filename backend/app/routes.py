@@ -59,9 +59,10 @@ def register():
     user = Users(email=email, password=password, first_name=first_name, last_name=last_name, organization=organization)
     user.save_to_db()
 
-    if send_email_confirmation(email):
-        return {'Status': "Sent email confirmation link"}, 200
-    
+    email_success, token = send_email_confirmation(email)
+    if email_success:
+        return {'Status': "Sent email confirmation link", 'token': token}, 200
+
     return {'Status': "Failed to send confirmation link. Please email us."}, 500
 
   

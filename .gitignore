@@ -68,3 +68,4 @@ venv
 app.db
 api.log*
 Protein_NN.db
+predictors/dependencies/*

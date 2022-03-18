@@ -5,6 +5,11 @@ from flask_restful import Api, Resource, reqparse
 
 from mutcompute.scripts.run import fetch_pdb_file
 from task import run_mutcompute
+import boto3
+from json import dumps
+from uuid import uuid4
+
+import os
 
 nn_app = Flask(__name__)
 nn_api = Api(nn_app)
@@ -55,9 +60,20 @@ class InferenceAPI(Resource):
                 )
 
             else:
-                run_mutcompute.delay(email, pdb_file.name, fs_pdb=True, load_cache=load_cache,
-                    dir='/mutcompute_2020/mutcompute/data/pdb_files', out_dir='/mutcompute_2020/mutcompute/data/inference_CSVs', )
-                
+                # run_mutcompute.delay(email, pdb_file.name, fs_pdb=True, load_cache=load_cache,
+                #     dir='/mutcompute_2020/mutcompute/data/pdb_files', out_dir='/mutcompute_2020/mutcompute/data/inference_CSVs', )
+
+                sqs = boto3.client("sqs", region_name=os.getenv("AWS_REGION"))
+
+                command = {"pdb_code": pdb_code, "user_email": email}
+
+                sqs.send_message(
+                    QueueUrl=os.getenv("JOB_QUEUE_URL"),
+                    MessageBody=dumps(command),
+                    MessageGroupId="PredictCommand",
+                    MessageDeduplicationId=str(uuid4())
+                )
+
                 return make_response(
                     jsonify(Result=f"""
                         Neural Net is running PDB file: {pdb_code.upper()}. 

@@ -1,0 +1,85 @@
+{
+  "channels": [
+      {
+          "blurring": "truncated",
+          "radius_override": null,
+          "truncation": 4.0,
+          "channel_type": "SingleElement",
+          "element": "C"
+      },
+      {
+          "blurring": "truncated",
+          "radius_override": null,
+          "truncation": 4.0,
+          "channel_type": "SingleElement",
+          "element": "H"
+      },
+      {
+          "blurring": "truncated",
+          "radius_override": null,
+          "truncation": 4.0,
+          "channel_type": "SingleElement",
+          "element": "N"
+      },
+      {
+          "blurring": "truncated",
+          "radius_override": null,
+          "truncation": 4.0,
+          "channel_type": "SingleElement",
+          "element": "O"
+      },
+      {
+          "blurring": "truncated",
+          "radius_override": null,
+          "truncation": 4.0,
+          "channel_type": "SingleElement",
+          "element": "S"
+      },
+      {
+          "blurring": "truncated",
+          "radius_override": null,
+          "truncation": 4.0,
+          "channel_type": "SingleElement",
+          "element": "P"
+      },
+      {
+          "blurring": "truncated",
+          "radius_override": null,
+          "truncation": 4.0,
+          "channel_type": "MultiElement",
+          "elements": [
+              "F",
+              "Cl",
+              "Br",
+              "I"
+          ]
+      },
+      {
+          "blurring": "truncated",
+          "radius_override": null,
+          "truncation": 4.0,
+          "column_name": "_atom_site.fw2_charge",
+          "channel_type": "PartialCharge"
+      },
+      {
+          "blurring": "truncated",
+          "radius_override": null,
+          "truncation": 4.0,
+          "column_name": "_atom_site.FreeSASA_value",
+          "channel_type": "SolventAccessibility"
+      }
+  ],
+  "example_maker": {
+      "example_maker_type": "SupervisedGemmiExampleMaker",
+      "include_hetatms": true,
+      "include_waters": false
+  },
+  "voxels": 20,
+  "side_length": 20.0,
+  "max_queue": 10000,
+  "box_builder": {
+      "box_builder_type": "CenteredBoxBuilder"
+  },
+  "learning_type": "supervised",
+  "data_order": "channels_last"
+}

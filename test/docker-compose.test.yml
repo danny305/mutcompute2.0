@@ -26,6 +26,7 @@ services:
       HOSTNAME: something
       PORT: someport
     volumes:
+      - ./backend/app:/app
       - ./test/resources/data:/app/data
     depends_on:
       - nn_api
@@ -37,10 +38,15 @@ services:
       - 8000:8000
     volumes:
       - ./test/resources/data:/mutcompute_2020/data
+      - ./nets/api:/mutcompute_2020/api
     environment:
       PYTHONUNBUFFERED: 1
       DB_URI: /mutcompute_2020/data/test_db.db
       DB_NN_TABLE: NN_Query
+      AWS_ACCESS_KEY_ID: 
+      AWS_SECRET_ACCESS_KEY: 
+      JOB_QUEUE_URL: https://sqs.us-east-1.amazonaws.com/444461107311/predictor-test.fifo
+      AWS_REGION: us-east-1
 
 
   # #Queue/Worker Processes
@@ -62,6 +68,29 @@ services:
       DB_NN_TABLE: NN_Query
     depends_on:
       - redis
+      - smtp4dev
+
+  predictor:
+    volumes:
+      - ./predictors/predictor:/predictor
+      - ./test/resources/data:/mutcompute_2020/data
+    command: python3 ./main.py
+    environment:
+      AWS_ACCESS_KEY_ID: 
+      AWS_SECRET_ACCESS_KEY: 
+      JOB_QUEUE_URL: https://sqs.us-east-1.amazonaws.com/444461107311/predictor-test.fifo
+      AWS_REGION: us-east-1
+      MODEL_BUCKET: mutcompute-models
+      MODEL_LIST: testmodel.tar.gz
+      PIPELINE_FILE: pipeline.json
+      SES_EMAIL_HOST: smtp4dev
+      SES_EMAIL_PORT: 25
+      SES_SMTP_USERNAME: someuser
+      SES_SMTP_PASSWORD: somepassword
+      DB_URI: /mutcompute_2020/data/test_db.db
+      DB_NN_TABLE: NN_Query
+      TF_CPP_MIN_LOG_LEVEL: 3
+    depends_on:
       - smtp4dev
 
 volumes:

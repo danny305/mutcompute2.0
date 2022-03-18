@@ -52,6 +52,10 @@ services:
       PYTHONUNBUFFERED: 1
       DB_URI: ${DB_URI_NN_API}
       DB_NN_TABLE: ${DB_NN_TABLE}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION}
+      JOB_QUEUE_URL: ${JOB_QUEUE_URL}
     depends_on:
       - redis 
       - celery
@@ -86,6 +90,28 @@ services:
     depends_on:
       - redis 
 
+  predictor:
+    container_name: predictor
+    image: mutcompute:predictor
+    command: python3 ./main.py
+    volumes: 
+      - ./data:/mutcompute_2020/data
+    environment:
+      LOG_LEVEL: INFO
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      JOB_QUEUE_URL: ${JOB_QUEUE_URL}
+      AWS_REGION: ${AWS_REGION}
+      MODEL_BUCKET: ${MODEL_BUCKET}
+      MODEL_LIST: ${MODEL_LIST}
+      PIPELINE_FILE: ${PIPELINE_FILE}
+      SES_EMAIL_HOST: ${SES_EMAIL_HOST}
+      SES_EMAIL_PORT: ${SES_EMAIL_PORT}
+      SES_SMTP_USERNAME: ${SES_SMTP_USERNAME}
+      SES_SMTP_PASSWORD: ${SES_SMTP_PASSWORD}
+      DB_URI: ${DB_URI_NN_API}
+      DB_NN_TABLE: ${DB_NN_TABLE}
+      TF_CPP_MIN_LOG_LEVEL: 3
 
   redis:
     container_name: redis
