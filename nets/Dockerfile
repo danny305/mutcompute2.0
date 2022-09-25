@@ -1,4 +1,4 @@
-FROM python:3.7.9-buster
+FROM python:3.7.9-buster AS prod
  
 LABEL maintainer="danny.diaz@utexas.edu"
 
@@ -26,5 +26,11 @@ ENV PYTHONPATH /mutcompute_2020/api:/mutcompute_2020/mutcompute:/mutcompute_2020
 COPY api /mutcompute_2020/api
 
 WORKDIR /mutcompute_2020/api
+
+ENTRYPOINT ["bash"]
+
+FROM prod AS test
+
+RUN pip install pytest
 
 ENTRYPOINT ["bash"]

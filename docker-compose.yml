@@ -63,10 +63,10 @@ services:
 
   # #Queue/Worker Processes
   celery:
-    container_name: celery
     build:
       context: ./nets
       dockerfile: Dockerfile
+      target: prod
     image: mutcompute:api
     volumes: 
       - ./data:/mutcompute_2020/data
