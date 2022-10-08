@@ -25,7 +25,6 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./backend/:/app/
       - ./data:/app/data
     environment:
       SES_EMAIL_HOST: ${SES_EMAIL_HOST}
@@ -38,7 +37,6 @@ services:
     depends_on:
       - nn_api
     command: gunicorn -b 0.0.0.0:5000 api:app
-    # entrypoint: python /app/api.py
 
 
   nn_api:
@@ -48,35 +46,33 @@ services:
       dockerfile: Dockerfile
     image: mutcompute:api
     volumes: 
-      - ./nets:/mutcompute_2020
       - ./data:/mutcompute_2020/data
+      - ./nets/data:/mutcompute_2020/mutcompute/data
     environment:
       PYTHONUNBUFFERED: 1
-      PYTHONPATH: /mutcompute_2020:/mutcompute_2020/mutcompute
       DB_URI: ${DB_URI_NN_API}
       DB_NN_TABLE: ${DB_NN_TABLE}
-    depends_on:
-      - redis 
-      - celery
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION}
+      JOB_QUEUE_URL: ${JOB_QUEUE_URL}
     ports:
       - 8000
-    working_dir: /mutcompute_2020/api
     entrypoint: python api.py
 
 
   # #Queue/Worker Processes
   celery:
-    container_name: celery
     build:
       context: ./nets
       dockerfile: Dockerfile
+      target: prod
     image: mutcompute:api
     volumes: 
-      - ./nets:/mutcompute_2020
       - ./data:/mutcompute_2020/data
+      - ./nets/data:/mutcompute_2020/mutcompute/data
     environment:
       PYTHONUNBUFFERED: 1
-      PYTHONPATH: /mutcompute_2020:/mutcompute_2020/mutcompute
       CELERY_BROKER_URL: redis://redis:6379/0
       CELERY_RESULT_BACKEND: redis://redis:6379/0
       SES_EMAIL_HOST: ${SES_EMAIL_HOST}
@@ -87,12 +83,32 @@ services:
       DB_NN_TABLE: ${DB_NN_TABLE}
       HOSTNAME: ${HOSTNAME}
       PORT: ${PORT}
-    working_dir: /mutcompute_2020/api
     entrypoint: celery -A task.celery worker -l debug --concurrency 2 
-    # entrypoint: celery -A task.celery worker --loglevel=DEBUG --concurrency 2 -P solo
     depends_on:
       - redis 
 
+  predictor:
+    container_name: predictor
+    image: mutcompute:predictor
+    command: python3 ./main.py
+    volumes: 
+      - ./data:/mutcompute_2020/data
+    environment:
+      LOG_LEVEL: INFO
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      JOB_QUEUE_URL: ${JOB_QUEUE_URL}
+      AWS_REGION: ${AWS_REGION}
+      MODEL_BUCKET: ${MODEL_BUCKET}
+      MODEL_LIST: ${MODEL_LIST}
+      PIPELINE_FILE: ${PIPELINE_FILE}
+      SES_EMAIL_HOST: ${SES_EMAIL_HOST}
+      SES_EMAIL_PORT: ${SES_EMAIL_PORT}
+      SES_SMTP_USERNAME: ${SES_SMTP_USERNAME}
+      SES_SMTP_PASSWORD: ${SES_SMTP_PASSWORD}
+      DB_URI: ${DB_URI_NN_API}
+      DB_NN_TABLE: ${DB_NN_TABLE}
+      TF_CPP_MIN_LOG_LEVEL: 3
 
   redis:
     container_name: redis
@@ -124,16 +140,3 @@ services:
       - ./nginx/certbot/conf:/etc/letsencrypt
       - ./nginx/certbot/www:/var/www/certbot
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-
-
-  # flower:
-  #     container_name: FLOWER
-  #     image: mher/flower
-  #     command: flower --broker=redis://redis:6379/0 --port=8888
-  #     ports:
-  #       - 9181:8888
-  #     depends_on: 
-  #       - celery
-  
-
-      

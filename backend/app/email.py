@@ -48,11 +48,11 @@ def send_email_confirmation(user_email):
     except Exception as e:
         print(f'Error in sending confirmation email to user: {user_email}')
         server.quit()
-        return False
+        return False, ""
 
     server.quit()
     print('Sent email')
-    return True
+    return True, token
 
 
 def send_password_reset(user_email):
